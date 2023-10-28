@@ -11,8 +11,8 @@ tasks:
       docker pull grokloc/grokloc-postgres:0.0.5
       docker pull grokloc/grokloc-perl5:0.0.2
   - db: |
-      cd /home/build/grokloc-perl5 && make local-db
+      cd /home/build/grokloc-prototype && make local-db
   - test: |
-      cd /home/build/grokloc-perl5 && make test
+      cd /home/build/grokloc-prototype && make test
   - critic: |
-      cd /home/build/grokloc-perl5 && make critic
+      cd /home/build/grokloc-prototype && make critic
