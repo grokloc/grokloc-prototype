@@ -1,0 +1,22 @@
+name: CI
+
+on: push
+
+env:
+  GROKLOC_ENV: UNIT
+  POSTGRES_APP_URL: postgres://grokloc:grokloc@db:5432/app
+  REPOSITORY_BASE: /tmp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build
+        run: docker-compose build
+      - name: Compose
+        run: docker-compose up -d
+      - name: Test
+        run: docker-compose run app make _test
+      - name: Critic
+        run: docker-compose run app make _critic

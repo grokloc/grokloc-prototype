@@ -1,0 +1,37 @@
+version: "3"
+services:
+  db:
+    container_name: db
+    env_file:
+      - env/compose.env
+    image: grokloc/grokloc-postgres:0.0.5 # see https://git.sr.ht/~grokloc/grokloc-postgres/tree/master/item/Makefile VERSION
+    restart: always
+    volumes:
+      - grokloc-db-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+  app:
+    depends_on:
+      - db
+    container_name: app
+    env_file:
+      - env/compose.env
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - grokloc-sample-repos:/repos
+    expose:
+      - 3000
+  samples:
+    container_name: samples
+    image: grokloc/grokloc-sample-repos:0.0.1 # see https://git.sr.ht/~grokloc/grokloc-sample-repos/tree/master/item/Makefile VERSION
+
+    volumes:
+      - grokloc-sample-repos:/repos
+volumes:
+  grokloc-db-data:
+  grokloc-sample-repos:
+networks:
+  default:
+    name: grokloc-perl5

@@ -1,0 +1,17 @@
+FROM perl:5.38.0
+RUN apt update
+RUN apt install -y \
+  ca-certificates \
+  libssl3 \
+  libssl-dev \
+  zlib1g-dev \
+  libreadline-dev \
+  libreadline8 \
+  readline-common \
+  build-essential \
+  libpq-dev \
+  git \
+  libgit2-dev && chown -R root:root /root
+
+CMD ["tail", "-f", "/dev/null"]
+

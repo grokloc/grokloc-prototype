@@ -1,0 +1,18 @@
+image: archlinux
+tasks:
+  - update-pacman: |
+      sudo pacman -Sy
+  - install-pkgs: |
+      sudo pacman --noconfirm -S make docker
+  - docker: |
+      sudo systemctl start docker.service && sleep 5
+      sudo usermod -a -G docker $(id -u -n)
+  - image: |
+      docker pull grokloc/grokloc-postgres:0.0.5
+      docker pull grokloc/grokloc-perl5:0.0.2
+  - db: |
+      cd /home/build/grokloc-perl5 && make local-db
+  - test: |
+      cd /home/build/grokloc-perl5 && make test
+  - critic: |
+      cd /home/build/grokloc-perl5 && make critic

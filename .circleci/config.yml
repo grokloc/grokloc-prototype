@@ -1,0 +1,15 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    environment:
+      GROKLOC_ENV: UNIT
+      POSTGRES_APP_URL: postgres://grokloc:grokloc@db:5432/app
+      REPOSITORY_BASE: /tmp
+    working_directory: ~/grokloc
+    steps:
+      - checkout
+      - run: docker-compose build
+      - run: docker-compose up -d
+      - run: docker-compose run app make _test
+      - run: docker-compose run app make _critic

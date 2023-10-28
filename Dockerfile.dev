@@ -1,0 +1,47 @@
+FROM grokloc/grokloc-perl5:base
+
+RUN cpanm -n --no-man-pages App::perlimports
+RUN cpanm -n --no-man-pages Cpanel::JSON::XS
+RUN cpanm -n --no-man-pages CryptX
+RUN cpanm -n --no-man-pages Crypt::Argon2
+RUN cpanm -n --no-man-pages Crypt::JWT
+RUN cpanm -n --no-man-pages Crypt::Random
+RUN cpanm -n --no-man-pages Data::Dumper
+RUN cpanm -n --no-man-pages DateTime
+RUN cpanm -n --no-man-pages Git::Raw
+RUN cpanm -n --no-man-pages Mojolicious
+RUN cpanm -n --no-man-pages Mojo::Pg
+RUN cpanm -n --no-man-pages Perl::Critic
+RUN cpanm -n --no-man-pages Perl::Critic::TooMuchCode
+RUN cpanm -n --no-man-pages Perl::Critic::StricterSubs
+RUN cpanm -n --no-man-pages Perl::Critic::Community
+RUN cpanm -n --no-man-pages Perl::Critic::Bangs
+RUN cpanm -n --no-man-pages Perl::Tidy
+RUN cpanm -n --no-man-pages Perl::Tidy::Sweetened
+RUN cpanm -n --no-man-pages strictures
+RUN cpanm -n --no-man-pages Syntax::Keyword::Try
+RUN cpanm -n --no-man-pages Term::ReadLine::Gnu
+RUN cpanm -n --no-man-pages Test2::Suite
+RUN cpanm -n --no-man-pages Test2::Harness
+RUN cpanm -n --no-man-pages Type::Tiny
+RUN cpanm -n --no-man-pages URI
+
+RUN chown -R root:root /root
+
+RUN apt -y purge build-essential
+RUN apt -y install make
+RUN apt -y autoremove
+RUN apt clean
+
+RUN rm -rf /root/.cpanm/* && chown -R root:root /root
+
+ENV PERL_JSON_BACKEND Cpanel::JSON::XS,JSON::XS,JSON::PP
+ENV PERL5LIB /grokloc/lib:/grokloc/service/app/lib
+
+WORKDIR /grokloc
+
+COPY .perlcritic .perlcritic
+ENV PERLCRITIC /grokloc/.perlcritic
+
+CMD ["tail", "-f", "/dev/null"]
+
