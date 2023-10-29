@@ -55,7 +55,7 @@ sub with_user ($c) {
 
   my $user_id = $c->req->headers->header($X_GROKLOC_ID_HEADER);
 
-  unless (is_v4uuid($user_id)) {
+  unless (is_v4uuid $user_id) {
     $c->render(
       format => 'json',
       json   => {error => 'id malformed'},
@@ -79,7 +79,7 @@ sub with_user ($c) {
     return undef;
   }
 
-  if (!defined($user) || $user->status != $STATUS_ACTIVE) {
+  unless (defined $user && $user->status == $STATUS_ACTIVE) {
     $c->render(
       format => 'json',
       json   => {error => 'authorizing user not found or inactive'},
@@ -103,7 +103,7 @@ sub with_user ($c) {
     return undef;
   }
 
-  if (!defined($org) || $org->status != $STATUS_ACTIVE) {
+  unless (defined $org && $org->status == $STATUS_ACTIVE) {
     $c->render(
       format => 'json',
       json   => {error => 'authorizing org not found or inactive'},
