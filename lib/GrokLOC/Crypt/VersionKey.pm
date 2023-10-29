@@ -19,9 +19,9 @@ sub build ($self) {
 
 sub validate ($self) {
   croak 'keymap must be hash ref' unless ref($self->keymap) eq 'HASH';
-  croak 'current must be set in keymap' unless defined($self->keymap->{$self->current});
+  croak 'current must be set in keymap' unless defined $self->keymap->{$self->current};
   for my $key (keys(%{$self->keymap})) {
-    croak 'key not in uuid form' unless is_v4uuid($key);
+    croak 'key not in uuid form' unless is_v4uuid $key;
   }
   return $self;
 }

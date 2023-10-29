@@ -22,8 +22,7 @@ sub validate ($self) {
 }
 
 sub create ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::User::Events::Create')) {
+  unless ($event isa 'GrokLOC::App::Admin::User::Events::Create') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::User::Events::Create');
     croak('event not GrokLOC::App::Admin::User::Events::Create');
   }
@@ -38,8 +37,7 @@ sub create ($self, $event) {
 }
 
 sub read ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::User::Events::Read')) {
+  unless ($event isa 'GrokLOC::App::Admin::User::Events::Read') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::User::Events::Read');
     croak('event not GrokLOC::App::Admin::User::Events::Read');
   }
@@ -51,8 +49,7 @@ sub read ($self, $event) {
 }
 
 sub update_display_name ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::User::Events::UpdateDisplayName')) {
+  unless ($event isa 'GrokLOC::App::Admin::User::Events::UpdateDisplayName') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::User::Events::UpdateDisplayName');
     croak('event not GrokLOC::App::Admin::User::Events::UpdateDisplayName');
   }
@@ -64,8 +61,7 @@ sub update_display_name ($self, $event) {
 }
 
 sub update_password ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::User::Events::UpdatePassword')) {
+  unless ($event isa 'GrokLOC::App::Admin::User::Events::UpdatePassword') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::User::Events::UpdatePassword');
     croak('event not GrokLOC::App::Admin::User::Events::UpdatePassword');
   }
@@ -77,8 +73,7 @@ sub update_password ($self, $event) {
 }
 
 sub update_status ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::User::Events::UpdateStatus')) {
+  unless ($event isa 'GrokLOC::App::Admin::User::Events::UpdateStatus') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::User::Events::UpdateStatus');
     croak('event not GrokLOC::App::Admin::User::Events::UpdateStatus');
   }

@@ -43,7 +43,7 @@ sub validate ($self) {
     LOG_ERROR(varchar => 'name');
     croak 'name fails';
   }
-  unless (is_v4uuid($self->owner)) {
+  unless (is_v4uuid $self->owner) {
     LOG_ERROR(owner => 'not is_v4uuid');
     croak 'owner fails';
   }
@@ -65,7 +65,7 @@ sub insert ($self, $master) {
       );
   }
   catch ($e) {
-    if ( $e =~ /unique/imsx ) {
+    if ($e =~ /unique/imsx) {
       LOG_WARNING(conflict => $self->id);
       return $RESPONSE_CONFLICT;
     }
@@ -78,7 +78,7 @@ sub insert ($self, $master) {
 sub read ($class, $dbo, $id) {
   my $v =
     $dbo->db->select( 'orgs', [qw{*}], { id => $id } )->hash;
-  return undef unless ( defined $v ); # not found == undef
+  return undef unless defined $v; # not found == undef
 
   # for now, treat schema mismatches as fatal
   if ($v->{schema_version} != $SCHEMA_VERSION) {
@@ -170,7 +170,7 @@ sub refresh ($self, $dbo) {
     $dbo->db->select( 'orgs',
     [qw{owner mtime signature status}],
     { id => $self->id } )->hash;
-  if (!defined $v) {
+  unless (defined $v) {
 
     # v undef means row not found which should not be possible
     # for an object previously instantiated
@@ -213,7 +213,7 @@ UPDATE_OWNER_QUERY
     # a constraint message means NULL was attempted to be assigned
     # to the owner column, which cannot be NULL, which means
     # the select criteria was not met (user in org, and active)
-    return $RESPONSE_NO_ROWS if ( $e =~ /constraint/imsx );
+    return $RESPONSE_NO_ROWS if ($e =~ /constraint/imsx);
     LOG_ERROR(uncaught => $e);
     croak 'uncaught:' . $e;
   }

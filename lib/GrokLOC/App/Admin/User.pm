@@ -50,7 +50,7 @@ sub build ($self) {
 
 sub validate ($self) {
   $self->SUPER::validate;
-  unless (is_v4uuid($self->api_secret)) {
+  unless (is_v4uuid $self->api_secret) {
     LOG_ERROR(api_secret => 'not is_v4uuid');
     croak 'api_secret fails';
   }
@@ -74,15 +74,15 @@ sub validate ($self) {
     LOG_ERROR(email_digest => $self->email_digest);
     croak 'email_digest fails';
   }
-  if (length $self->key_version != 0 && (!is_v4uuid($self->key_version))) {
+  if (length $self->key_version != 0 && (!is_v4uuid $self->key_version)) {
     LOG_ERROR(key_version => $self->key_version);
     croak 'key_version fails';
   }
-  unless (is_v4uuid($self->org)) {
+  unless (is_v4uuid $self->org) {
     LOG_ERROR(org => $self->org);
     croak 'org fails';
   }
-  unless (is_argon2_password($self->password)) {
+  unless (is_argon2_password $self->password) {
     LOG_ERROR(password => 'not argon2');
     croak 'password fails';
   }
@@ -90,8 +90,8 @@ sub validate ($self) {
 }
 
 sub encrypt ($self, $key, $key_version) {
-  croak 'key fails' unless is_aes_key($key);
-  croak 'key_version fails' unless is_v4uuid($key_version);
+  croak 'key fails' unless is_aes_key $key;
+  croak 'key_version fails' unless is_v4uuid $key_version;
   $self->api_secret(encrypt_hex($self->api_secret, $key));
   $self->display_name(encrypt_hex($self->display_name, $key));
   $self->email(encrypt_hex($self->email, $key));
@@ -121,7 +121,7 @@ sub insert ($self, $master) {
       );
   }
   catch ($e) {
-    if ( $e =~ /unique/imsx ) {
+    if ($e =~ /unique/imsx) {
       LOG_WARNING(conflict => $self->id);
       return $RESPONSE_CONFLICT;
     }
@@ -133,7 +133,7 @@ sub insert ($self, $master) {
 
 sub read ($class, $dbo, $version_key, $id) {
   my $v =
-    $dbo->db->select( 'users', [qw{*}], { id => $id } )->hash;
+    $dbo->db->select('users', [qw{*}], { id => $id })->hash;
   return undef unless ( defined $v ); # not found == undef
 
   # for now, treat schema mismatches as fatal
@@ -200,7 +200,7 @@ sub create ($class, $master, $version_key, %args) {
   }
 
   # validate org before lookup
-  if (!is_v4uuid($args{org})) {
+  if (!is_v4uuid $args{org}) {
     LOG_ERROR(missing => 'org');
     croak 'org fails';
   }
@@ -252,10 +252,10 @@ sub refresh ($self, $dbo, $version_key) {
   }
 
   my $v =
-    $dbo->db->select( 'users',
+    $dbo->db->select('users',
     [qw{display_name display_name_digest
         password mtime signature status}],
-    { id => $self->id } )->hash;
+    { id => $self->id })->hash;
   if (!defined $v) {
 
     # v undef means row not found which should not be possible

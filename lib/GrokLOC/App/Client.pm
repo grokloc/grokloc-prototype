@@ -37,20 +37,19 @@ sub build ($self) {
 sub validate ($self) {
 
   # token can remain q{}, token_expires can be 0
-  unless (is_v4uuid($self->id)) {
+  unless (is_v4uuid $self->id) {
     LOG_ERROR(id => 'not is_v4uuid');
     croak 'id fails';
   }
-  unless (is_v4uuid($self->api_secret)) {
+  unless (is_v4uuid $self->api_secret) {
     LOG_ERROR(api_secret => 'not is_v4uuid');
     croak 'api_secret fails';
   }
-  unless ((defined $self->ua) && ($self->ua isa 'Mojo::UserAgent')) {
+  unless ($self->ua isa 'Mojo::UserAgent') {
     LOG_ERROR(ua => 'malformed');
     croak 'ua fails';
   }
-  my $u = URI->new($self->url);
-  unless ((defined $self->url) && ($u->has_recognized_scheme)) {
+  unless (defined $self->url && URI->new($self->url)->has_recognized_scheme) {
     LOG_ERROR(url => 'malformed');
     croak 'url fails';
   }
@@ -84,8 +83,8 @@ sub token_request ($self) {
     my $token_fields = decode_json $result->body;
     croak 'body parse'
       unless (defined $token_fields && ref $token_fields eq 'HASH');
-    croak 'missing token' unless ( exists $token_fields->{token} );
-    croak 'missing expires' unless ( exists $token_fields->{expires} );
+    croak 'missing token' unless (exists $token_fields->{token});
+    croak 'missing expires' unless (exists $token_fields->{expires});
     $self->token($token_fields->{token});
     $self->token_expires($token_fields->{expires});
     return {

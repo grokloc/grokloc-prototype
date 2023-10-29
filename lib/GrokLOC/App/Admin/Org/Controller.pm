@@ -22,8 +22,7 @@ sub validate ($self) {
 }
 
 sub create ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::Org::Events::Create')) {
+  unless ($event isa 'GrokLOC::App::Admin::Org::Events::Create') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::Org::Events::Create');
     croak('event not GrokLOC::App::Admin::Org::Events::Create');
   }
@@ -39,8 +38,7 @@ sub create ($self, $event) {
 }
 
 sub read ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::Org::Events::Read')) {
+  unless ($event isa 'GrokLOC::App::Admin::Org::Events::Read') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::Org::Events::Read');
     croak('event not GrokLOC::App::Admin::Org::Events::Read');
   }
@@ -52,8 +50,7 @@ sub read ($self, $event) {
 }
 
 sub update_owner ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::Org::Events::UpdateOwner')) {
+  unless ($event isa 'GrokLOC::App::Admin::Org::Events::UpdateOwner') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::Org::Events::UpdateOwner');
     croak('event not GrokLOC::App::Admin::Org::Events::UpdateOwner');
   }
@@ -63,8 +60,7 @@ sub update_owner ($self, $event) {
 }
 
 sub update_status ($self, $event) {
-  unless ((defined $event) &&
-    ($event isa 'GrokLOC::App::Admin::Org::Events::UpdateStatus')) {
+  unless ($event isa 'GrokLOC::App::Admin::Org::Events::UpdateStatus') {
     LOG_ERROR(event => 'not GrokLOC::App::Admin::Org::Events::UpdateStatus');
     croak('event not GrokLOC::App::Admin::Org::Events::UpdateStatus');
   }

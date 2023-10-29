@@ -45,11 +45,11 @@ sub validate ($self) {
     LOG_ERROR(signing_key => 'not set');
     croak 'signing_key not set';
   }
-  unless (is_v4uuid($self->root_org)) {
+  unless (is_v4uuid $self->root_org) {
     LOG_ERROR(uuid => 'root_org');
     croak 'root_org is not uuid';
   }
-  unless (is_v4uuid($self->root_user)) {
+  unless (is_v4uuid $self->root_user) {
     LOG_ERROR(uuid => 'root_user');
     croak 'root_user is not uuid';
   }

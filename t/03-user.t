@@ -218,8 +218,8 @@ ok(
   ) or note($EVAL_ERROR);
 
 # make sure "auto" attributes are set
-is(is_v4uuid($u->id), 1);
-is(is_v4uuid($u->api_secret), 1);
+is(is_v4uuid $u->id, 1);
+is(is_v4uuid $u->api_secret, 1);
 is(sha256_hex($u->api_secret), $u->api_secret_digest);
 is(sha256_hex($u->display_name), $u->display_name_digest);
 is(sha256_hex($u->email), $u->email_digest);

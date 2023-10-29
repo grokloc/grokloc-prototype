@@ -10,7 +10,7 @@ our $VERSION = '0.01';
 our $AUTHORITY = 'cpan:bclawsie';
 
 sub with_id ($c) {
-  unless (is_v4uuid($c->param('id'))) {
+  unless (is_v4uuid $c->param('id')) {
     $c->render(
       format => 'json',
       json   => {error => 'id malformed or missing'},

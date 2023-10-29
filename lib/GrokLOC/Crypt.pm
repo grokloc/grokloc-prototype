@@ -82,7 +82,7 @@ sub decrypt_hex ($crypted, $key) {
 }
 
 sub kdf ($pw, $salt, $t_cost) {
-  croak 'pw zero len' if (!defined($pw) || length $pw == 0);
+  croak 'pw zero len' if (!(defined $pw) || length $pw == 0);
   croak 'salt fails is_argon2_salt' unless is_argon2_salt($salt);
   croak 't_cost fails is_kdf_iterations' unless is_kdf_iterations($t_cost);
   return argon2id_pass($pw, $salt, $t_cost, '32M', 1, 16);
