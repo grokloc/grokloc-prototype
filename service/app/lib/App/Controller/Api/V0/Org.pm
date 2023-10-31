@@ -23,7 +23,7 @@ no warnings 'experimental::try';
 our $VERSION = '0.01';
 our $AUTHORITY = 'cpan:bclawsie';
 
-sub create ($c) {
+sub post ($c) {
 
   # only root can create an org
   if ($c->stash($STASH_AUTH) != $AUTH_ROOT) {
@@ -83,7 +83,7 @@ sub create ($c) {
     );
 }
 
-sub read ($c) {
+sub get ($c) {
 
   # the org is normally stashed already from the with_user middleware,
   # but if the caller is root, the requested org to be read could be any
@@ -91,7 +91,7 @@ sub read ($c) {
     my $read_event = GrokLOC::App::Admin::Org::Events::Read->new(id => $c->param('id'));
     my $org;
     try {
-      $org = $c->org_controller->read($c->param('id'));
+      $org = $c->org_controller->read($read_event);
     }
     catch ($e) {
       LOG_ERROR(read_org => $c->param('id'), caught => $e);
@@ -103,7 +103,7 @@ sub read ($c) {
       return undef;
     }
 
-    if (!defined $org) {
+    unless (defined $org) {
       $c->render(
         format => 'json',
         json => {error => 'not found'},
@@ -121,6 +121,9 @@ sub read ($c) {
 
   # otherwise, if not root, the requested id must match the stashed org
   # (the caller's org detected from their user id)
+  #
+  # even if the org requested is fictitious, do not leak this
+  # to non-root caller with a 404...all they need to know is 403
   my $calling_org = $c->stash($STASH_ORG);
   if ($c->param('id') ne $calling_org->id) {
     $c->render(
@@ -137,5 +140,8 @@ sub read ($c) {
     status => 200,
     );
 }
+
+# will require a general PUT handler that discriminates between the arg
+# types and dispatches to the correct controller update method
 
 __END__

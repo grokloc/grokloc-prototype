@@ -6,6 +6,7 @@ use Test::Mojo;
 use Test2::V0 qw( bail_out done_testing is like lives note ok );
 use GrokLOC ();
 use GrokLOC::App::Client ();
+use GrokLOC::App::Admin::Org ();
 use GrokLOC::App::Admin::User ();
 use GrokLOC::App::State::Global qw( $ST );
 use GrokLOC::Crypt qw( rand_argon2_password );
@@ -49,38 +50,9 @@ ok(
   ) or note($EVAL_ERROR);
 
 # only root can create a new org
-my $create_org_result;
+my $create_org_response;
 my $org_name = random_v4uuid;
 my $password = rand_argon2_password;
-
-ok(
-  lives {
-    my %args = (
-      name               => $org_name,
-      owner_display_name => random_v4uuid,
-      owner_email        => random_v4uuid,
-      owner_password     => $password,
-      );
-    $create_org_result = $client->org_create(%args);
-  },
-  'org create',
-  ) or note($EVAL_ERROR);
-
-is($create_org_result->code, 201, 'org create');
-
-like($create_org_result->headers->location,
-  qr/\/\S+\/\S+\/\S+\/\S+/x, 'location path');
-
-my $org_id;
-if ($create_org_result->headers->location =~ /\/\S+\/\S+\/\S+\/(\S+)/x) {
-  $org_id = $1;
-}
-else {
-  bail_out 'cannot extract id from ' . $create_org_result->headers->location;
-}
-
-# try creating a duplicate to test conflict detection
-my $create_org_duplicate_result;
 
 ok(
   lives {
@@ -90,12 +62,43 @@ ok(
       owner_email => random_v4uuid,
       owner_password => $password,
       );
-    $create_org_duplicate_result = $client->org_create(%args);
+    $create_org_response = $client->org_create(%args);
   },
   'org create',
   ) or note($EVAL_ERROR);
 
-is($create_org_duplicate_result->code, 409, 'org create duplicate');
+is($create_org_response->code, 201, 'org create');
+
+like($create_org_response->headers->location,
+  qr/\/\S+\/\S+\/\S+\/\S+/x, 'location path');
+
+my $org_id;
+if ($create_org_response->headers->location =~ /\/\S+\/\S+\/\S+\/(\S+)/x) {
+  $org_id = $1;
+}
+else {
+  bail_out 'cannot extract id from ' . $create_org_response->headers->location;
+}
+
+is($org_id, $create_org_response->json->{id});
+
+# try creating a duplicate to test conflict detection
+my $create_org_duplicate_response;
+
+ok(
+  lives {
+    my %args = (
+      name => $org_name,
+      owner_display_name => random_v4uuid,
+      owner_email => random_v4uuid,
+      owner_password => $password,
+      );
+    $create_org_duplicate_response = $client->org_create(%args);
+  },
+  'org create',
+  ) or note($EVAL_ERROR);
+
+is($create_org_duplicate_response->code, 409, 'org create duplicate');
 
 # use the low-level api to read the user who is the owner of the
 # org just created...this user is not root and will not be able to create orgs
@@ -104,7 +107,7 @@ my $nonroot_user;
 ok(
   lives {
     $nonroot_user = GrokLOC::App::Admin::User->read( $ST->master, $ST->version_key,
-      $create_org_result->json->{owner} );
+      $create_org_response->json->{owner} );
   },
   'user read',
   ) or note($EVAL_ERROR);
@@ -126,7 +129,7 @@ ok(
   ) or note($EVAL_ERROR);
 
 # non-root user can't create an org
-my $fail_create_org_result;
+my $fail_create_org_response;
 
 ok(
   lives {
@@ -136,13 +139,13 @@ ok(
       owner_email => random_v4uuid,
       owner_password => $password,
       );
-    $fail_create_org_result = $nonroot_client->org_create(%args);
+    $fail_create_org_response = $nonroot_client->org_create(%args);
   },
   'org create',
   ) or note($EVAL_ERROR);
 
 # fails
-is($fail_create_org_result->code, 403, 'fail org create');
+is($fail_create_org_response->code, 403, 'fail org create');
 
 # the root client will also fail to create an org if there is missing info
 ok(
@@ -152,12 +155,56 @@ ok(
       owner_email => random_v4uuid,
       owner_password => $password,
       );
-    $fail_create_org_result = $client->org_create(%args);
+    $fail_create_org_response = $client->org_create(%args);
   },
   'org create',
   ) or note($EVAL_ERROR);
 
 # fails
-is($fail_create_org_result->code, 400, 'fail org create');
+is($fail_create_org_response->code, 400, 'fail org create');
+
+# read tests
+
+my $org_read_response;
+
+# root can read any existing org
+ok(
+  lives {
+    $org_read_response = $client->org_read($org_id);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->json->{id}, $org_id);
+
+# nonroot can also read their own org
+ok(
+  lives {
+    $org_read_response = $nonroot_client->org_read($org_id);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->json->{id}, $org_id);
+
+# root gets a 404 on trying to read a missing org
+ok(
+  lives {
+    $org_read_response = $client->org_read(random_v4uuid);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->code, 404);
+
+# nonroot cannot learn of a missing org, only a 403 auth fail
+ok(
+  lives {
+    $org_read_response = $nonroot_client->org_read(random_v4uuid);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->code, 403);
 
 done_testing;

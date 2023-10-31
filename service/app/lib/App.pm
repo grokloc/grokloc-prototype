@@ -99,7 +99,7 @@ sub routes_init ($self) {
 
   # org related
   # create a new org
-  $with_token->post($ORG_PATH)->to('api-v0-org#create');
+  $with_token->post($ORG_PATH)->to('api-v0-org#post');
 
   my $org_id_path = $ORG_PATH . '/:id';
 
@@ -107,7 +107,7 @@ sub routes_init ($self) {
     $with_token->under($org_id_path)->to('api-v0-validators#with_id');
 
   # read an org
-  $with_org_id->get(q{})->to('api-v0-org#read');
+  $with_org_id->get(q{})->to('api-v0-org#get');
 
   # update an org
   $with_org_id->put(q{})->to('api-v0-org#update');

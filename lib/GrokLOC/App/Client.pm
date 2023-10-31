@@ -118,13 +118,13 @@ sub org_create ($self, %args) {
 
 sub org_read ($self, $id) {
   my $headers = $self->token_request;
-  my $route   = $self->url . $ORG_ROUTE . q{/} . $self->id;
+  my $route   = $self->url . $ORG_ROUTE . q{/} . $id;
   return $self->ua->get($route => $headers)->result;
 }
 
 sub org_update ($self, $id, %args) {
   my $headers = $self->token_request;
-  my $route   = $self->url . $ORG_ROUTE . q{/} . $self->id;
+  my $route   = $self->url . $ORG_ROUTE . q{/} . $id;
   return $self->ua->put($route => $headers => json => \%args)->result;
 }
 
