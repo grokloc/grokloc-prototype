@@ -218,6 +218,7 @@ UPDATE_OWNER_QUERY
     croak 'uncaught:' . $e;
   }
 
+  # $self->id should refer to a row, so this is bad
   if ($rows == 0) {
     LOG_ERROR(missing => $self->id);
     croak 'no rows match update';
@@ -249,6 +250,7 @@ sub update_status ($self, $master, $status) {
     croak 'uncaught:' . $e;
   }
 
+  # $self->id should refer to a row, so this is bad
   if ($rows == 0) {
     LOG_ERROR(missing => $self->id);
     croak 'no rows match update';

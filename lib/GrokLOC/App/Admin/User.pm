@@ -311,16 +311,17 @@ sub update_display_name ($self, $master, $version_key, $display_name) {
     croak 'uncaught:' . $e;
   }
 
+  # $self->id should refer to a row, so this is bad
   if ($rows == 0) {
     LOG_ERROR(missing => $self->id);
     croak 'no rows match update';
   }
 
-  my $audit_status_resp = create_audit(
+  my $audit_display_name_resp = create_audit(
     $master, code => $AUDIT_USER_DISPLAY_NAME,
     source => 'orgs', source_id => $self->id);
-  if ($audit_status_resp != $RESPONSE_OK) {
-    LOG_WARNING(audit => 'user_status');
+  if ($audit_display_name_resp != $RESPONSE_OK) {
+    LOG_WARNING(audit => 'user_display_name');
   }
 
   $txn->commit;
@@ -343,16 +344,17 @@ sub update_password ($self, $master, $version_key, $password) {
     croak 'uncaught:' . $e;
   }
 
+  # $self->id should refer to a row, so this is bad
   if ($rows == 0) {
     LOG_ERROR(missing => $self->id);
     croak 'no rows match update';
   }
 
-  my $audit_status_resp = create_audit(
+  my $audit_password_resp = create_audit(
     $master, code => $AUDIT_USER_PASSWORD,
     source => 'orgs', source_id => $self->id);
-  if ($audit_status_resp != $RESPONSE_OK) {
-    LOG_WARNING(audit => 'user_status');
+  if ($audit_password_resp != $RESPONSE_OK) {
+    LOG_WARNING(audit => 'user_password');
   }
 
   $txn->commit;
@@ -374,6 +376,7 @@ sub update_status ($self, $master, $version_key, $status) {
     croak 'uncaught:' . $e;
   }
 
+  # $self->id should refer to a row, so this is bad
   if ($rows == 0) {
     LOG_ERROR(missing => $self->id);
     croak 'no rows match update';

@@ -154,7 +154,7 @@ ok(
   },
   ) or note($EVAL_ERROR);
 
-# email_diget != sha256_hex(email)
+# email_digest != sha256_hex(email)
 ok(
   dies {
     GrokLOC::App::Admin::User->new(
@@ -167,7 +167,7 @@ ok(
   },
   ) or note($EVAL_ERROR);
 
-# ok, email_diget == sha256_hex(email)
+# ok, email_digest == sha256_hex(email)
 ok(
   lives {
     my $email = random_v4uuid;

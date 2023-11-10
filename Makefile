@@ -32,6 +32,8 @@ _POSTGRES_APP_URL  = postgres://grokloc:grokloc@db:5432/app
 # local dev workflow using grokloc-perl5:$(VERSION) toolchain - make sure to run "make local-db" first
 # before running any of the rules in this section
 
+.DEFAULT_GOAL := all
+
 # start a "local" (net=host) db for iterating with build, test rules below
 .PHONY: local-db
 local-db:
@@ -47,9 +49,9 @@ local-db-down:
 shell:
 	$(DOCKER) run --rm -it $(VOLUMES) -w $(BASE) --env-file=env/dev.env --name=dev --net=host $(IMG_VERSIONED) /bin/bash
 
-# perl -c
 .PHONY: _check
 _check:
+	@echo "--- CHECK ---"
 	for i in `find . -name \*.pm`; do perl -c $$i; done
 	for i in `find . -name \*.t`; do perl -c $$i; done
 
@@ -57,32 +59,40 @@ _check:
 check:
 	$(LOCAL_RUN) make _check
 
-# unit tests
 .PHONY: _test
 _test:
+	@echo "--- TESTS ---"
 	$(TEST_RUNNER) $(LIB_TESTS) $(APP_TESTS)
 
 .PHONY: test
 test:
 	$(LOCAL_RUN) make _test
 
-# perlimports - always just run this in the local context
-.PHONY: imports
-imports:
+.PHONY: _imports
+_imports:
+	@echo "--- PERLIMPORTS ---"
 	find -name \*.pm -print0 | xargs -0 $(PERLIMPORTS)
 	find -name \*.t -print0 | xargs -0 $(PERLIMPORTS)
 
-# perltidier - always just run this in the local context
-.PHONY: tidy
-tidy:
+.PHONY: imports
+imports:
+	$(LOCAL_RUN) make _imports
+
+.PHONY: _tidy
+_tidy:
+	@echo "--- PERLTIDY ---"
 	find -name \*.pm -print0 | xargs -0 $(TIDY) -b 2>/dev/null
 	find -name \*.t -print0 | xargs -0 $(TIDY) -b 2>/dev/null
 	find -name \*bak -delete
 	find -name \*.ERR -delete
 
-# perlcritic
+.PHONY: tidy
+tidy:
+	$(LOCAL_RUN) make _tidy
+
 .PHONY: _critic
 _critic:
+	@echo "--- PERLCRITIC ---"
 	perlcritic $(CRITIC_ARGS) $(LIBS)
 	perlcritic $(TCRITIC_ARGS) $(LIB_TESTS)
 
@@ -90,8 +100,9 @@ _critic:
 critic:
 	$(LOCAL_RUN) make _critic
 
-.PHONY: local-all
-local-all: check test imports tidy critic
+.PHONY: all
+all:
+	$(LOCAL_RUN) make _check _test _imports _tidy _critic
 
 # run app
 .PHONY: run-app
@@ -137,9 +148,6 @@ compose-rm:
 .PHONY: compose-all
 compose-all: compose-rm up compose-test compose-critic
 
-.PHONY: all
-all: compose-all
-
 # ---------------------------------------------
 # SECTION: DOCKER ADMINISTRATION (some rules require docker login for grokloc)
 #
@@ -178,9 +186,6 @@ compose-shell:
 # clean out everything installed after `make down` to tear down compose resources
 .PHONY: clean
 clean:
-	$(DOCKER) rmi -f $(IMG_VERSIONED)
-	$(DOCKER) rmi -f grokloc/grokloc-perl5:$(VERSION)
-	$(DOCKER) rmi -f grokloc/grokloc-sample-repos:0.0.1
 	$(DOCKER) volume rm grokloc-app_grokloc-db-data
 	$(DOCKER) volume rm grokloc-app_grokloc-sample-repos
 

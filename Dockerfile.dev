@@ -23,7 +23,6 @@ RUN cpanm -n --no-man-pages Syntax::Keyword::Try
 RUN cpanm -n --no-man-pages Term::ReadLine::Gnu
 RUN cpanm -n --no-man-pages Test2::Suite
 RUN cpanm -n --no-man-pages Test2::Harness
-RUN cpanm -n --no-man-pages Type::Tiny
 RUN cpanm -n --no-man-pages URI
 
 RUN chown -R root:root /root

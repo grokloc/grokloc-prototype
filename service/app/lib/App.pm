@@ -110,7 +110,7 @@ sub routes_init ($self) {
   $with_org_id->get(q{})->to('api-v0-org#get');
 
   # update an org
-  $with_org_id->put(q{})->to('api-v0-org#update');
+  $with_org_id->put(q{})->to('api-v0-org#put');
 
   # catch-all not-found
   $r->any(

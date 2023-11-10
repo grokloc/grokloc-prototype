@@ -3,8 +3,8 @@ use v5.38;
 use Crypt::Misc qw( random_v4uuid );
 use English qw(-no_match_vars);
 use Test::Mojo;
-use Test2::V0 qw( bail_out done_testing is like lives note ok );
-use GrokLOC ();
+use Test2::V0 qw( bail_out done_testing is isnt like lives note ok );
+use GrokLOC qw( $STATUS_ACTIVE $STATUS_INACTIVE );
 use GrokLOC::App::Client ();
 use GrokLOC::App::Admin::Org ();
 use GrokLOC::App::Admin::User ();
@@ -202,9 +202,129 @@ ok(
   lives {
     $org_read_response = $nonroot_client->org_read(random_v4uuid);
   },
-  'org read',
+  'org nonroot read',
   ) or note($EVAL_ERROR);
 
 is($org_read_response->code, 403);
+
+# update tests
+
+my $org_update_response;
+
+# update status
+
+# bad value
+ok(
+  lives {
+    $org_update_response = $client->org_update($org_id, status => 'bad value');
+  },
+  'org update',
+  ) or note($EVAL_ERROR);
+
+is($org_update_response->code, 400);
+
+# works
+ok(
+  lives {
+    $org_update_response = $client->org_update($org_id, status => $STATUS_INACTIVE);
+  },
+  'org update',
+  ) or note($EVAL_ERROR);
+
+is($org_update_response->code, 204);
+
+# confirm
+ok(
+  lives {
+    $org_read_response = $client->org_read($org_id);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->json->{status}, $STATUS_INACTIVE);
+
+# change it back
+ok(
+  lives {
+    $org_update_response = $client->org_update($org_id, status => $STATUS_ACTIVE);
+  },
+  'org update',
+  ) or note($EVAL_ERROR);
+
+is($org_update_response->code, 204);
+
+# confirm
+ok(
+  lives {
+    $org_read_response = $client->org_read($org_id);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->json->{status}, $STATUS_ACTIVE);
+
+# nonroot (org owner) cannot update their own org, only root can
+#
+# only need to test this for one kind of update, they are all the same code path
+ok(
+  lives {
+    $org_update_response = $nonroot_client->org_update($org_id, status => $STATUS_ACTIVE);
+  },
+  'org nonroot update',
+  ) or note($EVAL_ERROR);
+
+is($org_update_response->code, 403);
+
+# update owner
+
+# first, create a new active user in the org
+my $new_owner;
+
+ok(
+  lives {
+    $new_owner = GrokLOC::App::Admin::User->create(
+      $ST->master,
+      $ST->version_key,
+      display_name => random_v4uuid,
+      email => random_v4uuid,
+      org => $org_id,
+      password => rand_argon2_password,
+      status => $STATUS_ACTIVE,
+      );
+  },
+  ) or note($EVAL_ERROR);
+
+isnt($new_owner, undef);
+is($new_owner->status, $STATUS_ACTIVE);
+
+# bad value
+ok(
+  lives {
+    $org_update_response = $client->org_update($org_id, owner => 'bad value');
+  },
+  'org update',
+  ) or note($EVAL_ERROR);
+
+is($org_update_response->code, 400);
+
+# works
+ok(
+  lives {
+    $org_update_response = $client->org_update($org_id, owner => $new_owner->id);
+  },
+  'org update',
+  ) or note($EVAL_ERROR);
+
+is($org_update_response->code, 204);
+
+# confirm
+ok(
+  lives {
+    $org_read_response = $client->org_read($org_id);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->json->{owner}, $new_owner->id);
 
 done_testing;
