@@ -128,4 +128,10 @@ sub org_update ($self, $id, %args) {
   return $self->ua->put($route => $headers => json => \%args)->result;
 }
 
+sub org_delete ($self, $id) {
+  my $headers = $self->token_request;
+  my $route   = $self->url . $ORG_ROUTE . q{/} . $id;
+  return $self->ua->delete($route => $headers)->result;
+}
+
 __END__

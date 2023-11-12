@@ -327,4 +327,38 @@ ok(
 
 is($org_read_response->json->{owner}, $new_owner->id);
 
+# delete tests (set to inactive)
+
+my $org_delete_response;
+
+# nonroot cannot delete
+ok(
+  lives {
+    $org_delete_response = $nonroot_client->org_delete($org_id);
+  },
+  'org nonroot delete',
+  ) or note($EVAL_ERROR);
+
+is($org_delete_response->code, 403);
+
+# root can delete
+ok(
+  lives {
+    $org_delete_response = $client->org_delete($org_id);
+  },
+  'org delete',
+  ) or note($EVAL_ERROR);
+
+is($org_delete_response->code, 204);
+
+# confirm
+ok(
+  lives {
+    $org_read_response = $client->org_read($org_id);
+  },
+  'org read',
+  ) or note($EVAL_ERROR);
+
+is($org_read_response->json->{status}, $STATUS_INACTIVE);
+
 done_testing;

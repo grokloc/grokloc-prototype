@@ -112,6 +112,9 @@ sub routes_init ($self) {
   # update an org
   $with_org_id->put(q{})->to('api-v0-org#put');
 
+  # delete an org (set status to inactive)
+  $with_org_id->delete(q{})->to('api-v0-org#del');
+
   # catch-all not-found
   $r->any(
     '/*whatever' => { whatever => q{} } => sub ($c) {

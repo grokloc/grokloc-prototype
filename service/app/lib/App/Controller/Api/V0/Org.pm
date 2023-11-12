@@ -13,6 +13,7 @@ use GrokLOC qw(
   $RESPONSE_OK
   $STASH_AUTH
   $STASH_ORG
+  $STATUS_INACTIVE
   );
 use GrokLOC::App::Admin::Org::Events::Create ();
 use GrokLOC::App::Admin::Org::Events::Read ();
@@ -208,6 +209,71 @@ sub put ($c) {
       LOG_ERROR(unknown_event => $update_event);
       croak 'update event unknown';
     }
+  }
+  catch ($e) {
+    LOG_ERROR(update_org => $c->param('id'), caught => $e);
+    $c->render(
+      format => 'json',
+      json => {error => $INTERNAL_ERROR},
+      status => 500,
+      );
+    return undef;
+  }
+
+  if ($update_resp == $RESPONSE_OK) {
+    return $c->render(data => q{}, status => 204);
+  }
+  if ($update_resp == $RESPONSE_NO_ROWS) {
+    LOG_WARNING(update_fail => 'no rows updated');
+    $c->render(
+      format => 'json',
+      json => {error => 'no update performed'},
+      status => 400,
+      );
+    return undef;
+  }
+
+  # unknown response
+  LOG_ERROR(update_org => $c->param('id'), resp => $update_resp);
+  $c->render(
+    format => 'json',
+    json => {error => $INTERNAL_ERROR},
+    status => 500,
+    );
+  return undef;
+}
+
+sub del ($c) { # delete is a perl keyword
+
+  # only root can update an org status
+  if ($c->stash($STASH_AUTH) != $AUTH_ROOT) {
+    $c->render(
+      format => 'json',
+      json => { error => $INADEQUATE_AUTHORIZATION },
+      status => 403,
+      );
+    return undef;
+  }
+
+  my $update_event;
+
+  try {
+    $update_event = GrokLOC::App::Admin::Org::Events::UpdateStatus->new(id => $c->param('id'), status => $STATUS_INACTIVE)->build->validate;
+  }
+  catch ($e) {
+    LOG_DEBUG(update_event => $e);
+    $c->render(
+      format => 'json',
+      json => {error => 'delete args missing or malformed'},
+      status => 400,
+      );
+    return undef;
+  }
+
+  my $update_resp;
+
+  try {
+    $update_resp = $c->org_controller->update_status($update_event);
   }
   catch ($e) {
     LOG_ERROR(update_org => $c->param('id'), caught => $e);
