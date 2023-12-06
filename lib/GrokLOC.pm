@@ -97,6 +97,10 @@ Readonly::Scalar our $AUTH_USER => 1;
 Readonly::Scalar our $AUTH_ORG => 2;
 Readonly::Scalar our $AUTH_ROOT => 3;
 
+# access a stashed model read in at a middleware
+Readonly::Scalar our $READ_ORG => 'read_org';
+Readonly::Scalar our $READ_USER => 'read_user';
+
 our @EXPORT_OK = qw(
   is_role
   is_status
@@ -113,7 +117,7 @@ our @EXPORT_OK = qw(
   $STATUS_UNCONFIRMED
   $STATUS_ACTIVE
   $STATUS_INACTIVE
-  $RESPONSE_OK
+  $READ_ORG
   $RESPONSE_NOT_FOUND
   $RESPONSE_CONFLICT
   $RESPONSE_CONFLICT_MSG
@@ -154,6 +158,8 @@ our @EXPORT_OK = qw(
   $AUTH_USER
   $AUTH_ORG
   $AUTH_ROOT
+  $READ_USER
+  $RESPONSE_OK
   );
 
 our %EXPORT_TAGS = (all => \@EXPORT_OK);

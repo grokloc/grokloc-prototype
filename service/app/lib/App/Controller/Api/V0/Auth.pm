@@ -47,7 +47,7 @@ sub with_user ($c) {
   unless ($c->req->headers->header($X_GROKLOC_ID_HEADER)) {
     $c->render(
       format => 'json',
-      json   => {error => 'missing:' . $X_GROKLOC_ID_HEADER},
+      json => {error => 'missing:' . $X_GROKLOC_ID_HEADER},
       status => 400,
       );
     return undef;
@@ -58,7 +58,7 @@ sub with_user ($c) {
   unless (is_v4uuid $user_id) {
     $c->render(
       format => 'json',
-      json   => {error => 'id malformed'},
+      json => {error => 'id malformed'},
       status => 400,
       );
     return undef;
@@ -73,7 +73,7 @@ sub with_user ($c) {
     LOG_ERROR(read_user => $user_id, caught => $e);
     $c->render(
       format => 'json',
-      json   => {error => $INTERNAL_ERROR},
+      json => {error => $INTERNAL_ERROR},
       status => 500,
       );
     return undef;
@@ -82,7 +82,7 @@ sub with_user ($c) {
   unless (defined $user && $user->status == $STATUS_ACTIVE) {
     $c->render(
       format => 'json',
-      json   => {error => 'authorizing user not found or inactive'},
+      json => {error => 'authorizing user not found or inactive'},
       status => 404,
       );
     return undef;
@@ -97,7 +97,7 @@ sub with_user ($c) {
     LOG_ERROR(read_org => $org, caught => $e);
     $c->render(
       format => 'json',
-      json   => {error => $INTERNAL_ERROR},
+      json => {error => $INTERNAL_ERROR},
       status => 500,
       );
     return undef;
@@ -106,7 +106,7 @@ sub with_user ($c) {
   unless (defined $org && $org->status == $STATUS_ACTIVE) {
     $c->render(
       format => 'json',
-      json   => {error => 'authorizing org not found or inactive'},
+      json => {error => 'authorizing org not found or inactive'},
       status => 400,
       );
     return undef;
@@ -123,7 +123,7 @@ sub with_user ($c) {
   }
 
   $c->stash($STASH_AUTH => $auth_level);
-  $c->stash($STASH_ORG  => $org);
+  $c->stash($STASH_ORG => $org);
   $c->stash($STASH_USER => $user);
   return 1;
 }
@@ -139,7 +139,7 @@ sub with_token ($c) {
   unless ($c->req->headers->header($AUTHORIZATION_HEADER)) {
     $c->render(
       format => 'json',
-      json   => {error => 'missing ' . $AUTHORIZATION_HEADER},
+      json => {error => 'missing ' . $AUTHORIZATION_HEADER},
       status => 400,
       );
     return undef;
@@ -153,7 +153,7 @@ sub with_token ($c) {
     unless ($decoded->{'sub'} eq $c->stash($STASH_USER)->id) {
       $c->render(
         format => 'json',
-        json   => {error => 'token contents incorrect'},
+        json => {error => 'token contents incorrect'},
         status => 400,
         );
       return undef;
@@ -162,7 +162,7 @@ sub with_token ($c) {
     if ($decoded->{exp} < $now) {
       $c->render(
         format => 'json',
-        json   => {error => 'token expired'},
+        json => {error => 'token expired'},
         status => 400,
         );
       return undef;
@@ -172,7 +172,7 @@ sub with_token ($c) {
     LOG_DEBUG(token_decode => $e);
     $c->render(
       format => 'json',
-      json   => {error => 'token decode error'},
+      json => {error => 'token decode error'},
       status => 400,
       );
     return undef;
@@ -192,7 +192,7 @@ sub new_token ($c) {
   unless (defined $token_request) {
     $c->render(
       format => 'json',
-      json   => {error => 'missing:' . $X_GROKLOC_TOKEN_REQUEST_HEADER},
+      json => {error => 'missing:' . $X_GROKLOC_TOKEN_REQUEST_HEADER},
       status => 400,
       );
     return undef;
@@ -204,7 +204,7 @@ sub new_token ($c) {
   {
     $c->render(
       format => 'json',
-      json   => {error => 'bad token request'},
+      json => {error => 'bad token request'},
       status => 401,
       );
     return undef;
@@ -219,7 +219,7 @@ sub new_token ($c) {
     LOG_ERROR(encode_token => 'failed', user_id => $calling_user->id, caught => $e);
     $c->render(
       format => 'json',
-      json   => {error => $INTERNAL_ERROR},
+      json => {error => $INTERNAL_ERROR},
       status => 500,
       );
     return undef;
@@ -228,8 +228,8 @@ sub new_token ($c) {
   LOG_INFO(user_id => $calling_user->id, token => 'newly made');
   return $c->render(
     format => 'json',
-    json   => {
-      token   => $token,
+    json => {
+      token => $token,
       expires => $now + $JWT_EXPIRATION - 30,
       },
     status => 200,

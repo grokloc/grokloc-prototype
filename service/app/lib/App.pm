@@ -13,6 +13,7 @@ use GrokLOC qw(
   $ORG_PATH
   $STATUS_PATH
   $TOKEN_REQUEST_PATH
+  $USER_PATH
   );
 use GrokLOC::App::Admin::Org::Controller ();
 use GrokLOC::App::Admin::User::Controller ();
@@ -114,6 +115,24 @@ sub routes_init ($self) {
 
   # delete an org (set status to inactive)
   $with_org_id->delete(q{})->to('api-v0-org#del');
+
+  # user related
+  # create a new user
+  $with_token->post($USER_PATH)->to('api-v0-user#post');
+
+  my $user_id_path = $USER_PATH . '/:id';
+
+  my $with_user_id =
+    $with_token->under($user_id_path)->to('api-v0-validators#with_user_id');
+
+  # read a user
+  $with_user_id->get(q{})->to('api-v0-user#get');
+
+  # update a user
+  $with_user_id->put(q{})->to('api-v0-user#put');
+
+  # delete a user (set status to inactive)
+  $with_user_id->delete(q{})->to('api-v0-user#del');
 
   # catch-all not-found
   $r->any(

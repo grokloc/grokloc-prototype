@@ -12,6 +12,7 @@ use GrokLOC qw(
   $ORG_ROUTE
   $STATUS_ROUTE
   $TOKEN_REQUEST_ROUTE
+  $USER_ROUTE
   $X_GROKLOC_ID_HEADER
   $X_GROKLOC_TOKEN_REQUEST_HEADER
   );
@@ -118,19 +119,44 @@ sub org_create ($self, %args) {
 
 sub org_read ($self, $id) {
   my $headers = $self->token_request;
-  my $route   = $self->url . $ORG_ROUTE . q{/} . $id;
+  my $route = $self->url . $ORG_ROUTE . q{/} . $id;
   return $self->ua->get($route => $headers)->result;
 }
 
 sub org_update ($self, $id, %args) {
   my $headers = $self->token_request;
-  my $route   = $self->url . $ORG_ROUTE . q{/} . $id;
+  my $route = $self->url . $ORG_ROUTE . q{/} . $id;
   return $self->ua->put($route => $headers => json => \%args)->result;
 }
 
 sub org_delete ($self, $id) {
   my $headers = $self->token_request;
-  my $route   = $self->url . $ORG_ROUTE . q{/} . $id;
+  my $route = $self->url . $ORG_ROUTE . q{/} . $id;
+  return $self->ua->delete($route => $headers)->result;
+}
+
+# user related
+sub user_create ($self, %args) {
+  my $headers = $self->token_request;
+  my $route = $self->url . $USER_ROUTE;
+  return $self->ua->post($route => $headers => json => \%args)->result;
+}
+
+sub user_read ($self, $id) {
+  my $headers = $self->token_request;
+  my $route = $self->url . $USER_ROUTE . q{/} . $id;
+  return $self->ua->get($route => $headers)->result;
+}
+
+sub user_update ($self, $id, %args) {
+  my $headers = $self->token_request;
+  my $route = $self->url . $USER_ROUTE . q{/} . $id;
+  return $self->ua->put($route => $headers => json => \%args)->result;
+}
+
+sub user_delete ($self, $id) {
+  my $headers = $self->token_request;
+  my $route = $self->url . $USER_ROUTE . q{/} . $id;
   return $self->ua->delete($route => $headers)->result;
 }
 

@@ -447,4 +447,16 @@ sub reencrypt ($self, $master, $version_key, $key_version) {
   return $self->refresh($master, $version_key);
 }
 
+sub TO_JSON ($self) {
+  {
+    id => $self->id,
+    display_name => $self->display_name,
+    email => $self->email,
+    org => $self->org,
+    status => $self->status,
+    ctime => $self->ctime,
+    mtime => $self->mtime,
+  }
+}
+
 __END__

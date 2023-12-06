@@ -11,12 +11,14 @@ use GrokLOC::App::Admin::User ();
 use GrokLOC::App::State::Global qw( $ST );
 use GrokLOC::Crypt qw( rand_argon2_password );
 
-# ABSTRACT: test /ok
+# ABSTRACT: test org handlers
 
 our $VERSION   = '0.01';
 our $AUTHORITY = 'cpan:bclawsie';
 
 my $t = Test::Mojo->new('App');
+
+# post tests
 
 # read root user object from root user id to get to other fields
 my $ru;
@@ -163,7 +165,7 @@ ok(
 # fails
 is($fail_create_org_response->code, 400, 'fail org create');
 
-# read tests
+# get tests
 
 my $org_read_response;
 
@@ -175,6 +177,7 @@ ok(
   'org read',
   ) or note($EVAL_ERROR);
 
+is($org_read_response->code, 200);
 is($org_read_response->json->{id}, $org_id);
 
 # nonroot can also read their own org
@@ -185,6 +188,7 @@ ok(
   'org read',
   ) or note($EVAL_ERROR);
 
+is($org_read_response->code, 200);
 is($org_read_response->json->{id}, $org_id);
 
 # root gets a 404 on trying to read a missing org
@@ -207,7 +211,7 @@ ok(
 
 is($org_read_response->code, 403);
 
-# update tests
+# put tests
 
 my $org_update_response;
 
